@@ -1,0 +1,43 @@
+{% extends "drinks/base.html" %}
+
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+
+{% block content %}
+
+    <h2>{{ title }}</h2>
+
+    <p>
+        <strong>slug =</strong>
+        {{ drink_slug }}
+    </p>
+
+    {% if drink %}
+
+        <h3>{{ drink.name }}</h3>
+
+        <p>
+            <strong>Тип:</strong>
+            {{ drink.type }}
+        </p>
+
+        <p>
+            <strong>Бренд:</strong>
+            {{ drink.brand }}
+        </p>
+
+        <p>{{ drink.description }}</p>
+
+    {% else %}
+
+        <p>
+            Напиток с таким slug отсутствует
+            в демонстрационном списке.
+        </p>
+
+    {% endif %}
+
+{% endblock %}

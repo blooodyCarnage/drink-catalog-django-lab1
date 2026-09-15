@@ -1,0 +1,42 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+
+    <title>
+        {% block title %}
+            {{ title|default:"Каталог напитков" }}
+        {% endblock %}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'drinks/css/styles.css' %}"
+    >
+</head>
+
+<body>
+
+<header class="site-header">
+    <div class="container">
+        <h1 class="site-name">Drink Catalog</h1>
+
+        {% include "drinks/includes/nav.html" %}
+    </div>
+</header>
+
+<main class="container content">
+    {% block content %}
+    {% endblock %}
+</main>
+
+<footer class="site-footer">
+    <div class="container">
+        <p>Учебный проект Django — каталог напитков</p>
+    </div>
+</footer>
+
+</body>
+</html>

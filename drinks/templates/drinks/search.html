@@ -1,0 +1,59 @@
+{% extends "drinks/base.html" %}
+
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+
+{% block content %}
+
+    <h2>{{ title }}</h2>
+
+    <form
+        class="search-form"
+        method="get"
+        action="{% url 'search' %}"
+    >
+
+        <label>
+            Тип напитка:
+            <input
+                type="text"
+                name="type"
+                value="{{ drink_type }}"
+                placeholder="juice"
+            >
+        </label>
+
+        <label>
+            Бренд:
+            <input
+                type="text"
+                name="brand"
+                value="{{ brand }}"
+                placeholder="Rich"
+            >
+        </label>
+
+        <button type="submit">
+            Найти
+        </button>
+
+    </form>
+
+    <div class="search-result">
+
+        <p>
+            <strong>type =</strong>
+            {{ drink_type|default:"не задан" }}
+        </p>
+
+        <p>
+            <strong>brand =</strong>
+            {{ brand|default:"не задан" }}
+        </p>
+
+    </div>
+
+{% endblock %}

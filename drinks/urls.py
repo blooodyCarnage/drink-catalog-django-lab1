@@ -10,6 +10,8 @@ register_converter(FourDigitYearConverter, "year4")
 urlpatterns = [
     path("", views.index, name="home"),
 
+    path("about/", views.about, name="about"),
+
     path("drinks/", views.drinks_list, name="drinks"),
 
     path(

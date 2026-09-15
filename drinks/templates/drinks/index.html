@@ -1,0 +1,35 @@
+{% extends "drinks/base.html" %}
+{% load static %}
+{% load drink_tags %}
+
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+
+{% block content %}
+
+    <section class="hero">
+        <div class="hero-text">
+            <h2>{{ title }}</h2>
+
+            <p>{{ description }}</p>
+
+            <p class="welcome-message">
+                <strong>{% site_message %}</strong>
+            </p>
+
+            <a class="button" href="{% url 'drinks' %}">
+                Открыть каталог
+            </a>
+        </div>
+
+        <img
+            class="hero-image"
+            src="{% static 'drinks/images/drinks.svg' %}"
+            alt="Иллюстрация напитков"
+        >
+    </section>
+
+{% endblock %}
