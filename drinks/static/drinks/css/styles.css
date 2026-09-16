@@ -168,6 +168,51 @@ button:hover {
     text-align: center;
     color: #66717c;
 }
+.catalog-layout {
+    display: grid;
+    grid-template-columns: 190px 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.catalog-sidebar {
+    padding: 18px;
+    border: 1px solid #dce3ea;
+    border-radius: 10px;
+    background-color: #f2f7fc;
+}
+
+.catalog-sidebar h3 {
+    margin-top: 0;
+    color: #1f3c5c;
+}
+
+.catalog-sidebar h3:not(:first-child) {
+    margin-top: 24px;
+}
+
+.filter-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.filter-list li {
+    margin-bottom: 8px;
+}
+
+.filter-list a {
+    color: #1f6fb2;
+    text-decoration: none;
+}
+
+.filter-list a:hover {
+    text-decoration: underline;
+}
+
+.catalog-main {
+    min-width: 0;
+}
 
 @media (max-width: 700px) {
     .hero {
@@ -179,4 +224,10 @@ button:hover {
         width: 100%;
         max-width: 380px;
     }
+
+    .catalog-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
 }

@@ -16,82 +16,185 @@
         {{ title|shout }}
     </p>
 
-    <div class="drink-list">
 
-        {% for drink in drinks %}
+    <div class="catalog-layout">
 
-            <article class="drink-card">
+        <aside class="catalog-sidebar">
 
-                <h3>{{ drink.name }}</h3>
+            <h3>Категории</h3>
+
+            <ul class="filter-list">
+                <li>
+                    {% if not selected_category %}
+                        <strong>Все категории</strong>
+                    {% else %}
+                        <a href="{% url 'drinks' %}">
+                            Все категории
+                        </a>
+                    {% endif %}
+                </li>
+
+                {% for category in categories %}
+                    <li>
+                        {% if selected_category.id == category.id %}
+                            <strong>{{ category.name }}</strong>
+                        {% else %}
+                            <a href="{{ category.get_absolute_url }}">
+                                {{ category.name }}
+                            </a>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+
+
+            <h3>Теги</h3>
+
+            <ul class="filter-list">
+                {% for tag in tags %}
+                    <li>
+                        {% if selected_tag.id == tag.id %}
+                            <strong>{{ tag.name }}</strong>
+                        {% else %}
+                            <a href="{{ tag.get_absolute_url }}">
+                                {{ tag.name }}
+                            </a>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+
+        </aside>
+
+
+        <div class="catalog-main">
+
+            <div class="drink-list">
+
+                {% for drink in drinks %}
+
+                    <article class="drink-card">
+
+                        <h3>{{ drink.name }}</h3>
+
+                        <p>
+                            <strong>Категория:</strong>
+
+                            {% if drink.category %}
+                                <a href="{{ drink.category.get_absolute_url }}">
+                                    {{ drink.category.name }}
+                                </a>
+                            {% else %}
+                                не указана
+                            {% endif %}
+                        </p>
+
+                        <p>
+                            <strong>Тип:</strong>
+                            {{ drink.type }}
+                        </p>
+
+                        <p>
+                            <strong>Бренд:</strong>
+                            {{ drink.brand }}
+                        </p>
+
+                        <p>
+                            <strong>Теги:</strong>
+
+                            {% for tag in drink.tags.all %}
+                                <a href="{{ tag.get_absolute_url }}">
+                                    {{ tag.name }}
+                                </a>{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                нет тегов
+                            {% endfor %}
+                        </p>
+
+                        {% if drink.meta %}
+                            <p>
+                                <strong>Объём:</strong>
+                                {{ drink.meta.volume_ml }} мл
+                            </p>
+
+                            <p>
+                                <strong>Упаковка:</strong>
+                                {{ drink.meta.package }}
+                            </p>
+                        {% endif %}
+
+                        <p>{{ drink.description }}</p>
+
+                        {% if drink.available %}
+                            <p class="available">
+                                В наличии
+                            </p>
+                        {% else %}
+                            <p class="unavailable">
+                                Временно недоступен
+                            </p>
+                        {% endif %}
+
+                        <p>
+                            <a href="{% url 'drink_id' drink.id %}">
+                                Открыть по ID
+                            </a>
+                            |
+                            <a href="{{ drink.get_absolute_url }}">
+                                Открыть по slug
+                            </a>
+                        </p>
+
+                    </article>
+
+                {% empty %}
+
+                    <p>Напитки не найдены.</p>
+
+                {% endfor %}
+
+            </div>
+
+
+            {% if drink_names|length > 3 %}
+                <p>
+                    <strong>
+                        В каталоге представлено несколько напитков.
+                    </strong>
+                </p>
+            {% endif %}
+
+
+            <div class="template-demo">
 
                 <p>
-                    <strong>Тип:</strong>
-                    {{ drink.type }}
+                    <strong>Всего напитков:</strong>
+                    {{ drink_names|length }}
                 </p>
 
-                <p>
-                    <strong>Бренд:</strong>
-                    {{ drink.brand }}
-                </p>
+                {% if drink_names %}
 
-                <p>{{ drink.description }}</p>
+                    <p>
+                        <strong>Первый напиток:</strong>
+                        {{ drink_names|first }}
+                    </p>
 
-                {% if drink.available %}
-                    <p class="available">
-                        В наличии
+                    <p>
+                        <strong>Последний напиток:</strong>
+                        {{ drink_names|last }}
                     </p>
-                {% else %}
-                    <p class="unavailable">
-                        Временно недоступен
+
+                    <p>
+                        <strong>Все напитки:</strong>
+                        {{ drink_names|join:", " }}
                     </p>
+
                 {% endif %}
 
-                <p>
-                    <a href="{% url 'drink_id' drink.id %}">
-                        Открыть по ID
-                    </a>
-                    |
-                    <a href="{{ drink.get_absolute_url }}">
-                        Открыть по slug
-                    </a>
-                </p>
+            </div>
 
-            </article>
+        </div>
 
-        {% empty %}
-
-            <p>Напитки пока отсутствуют.</p>
-
-        {% endfor %}
-
-    </div>
-
-    {% if drink_names|length > 3 %}
-        <p>
-            <strong>В каталоге представлено несколько напитков.</strong>
-        </p>
-    {% endif %}
-
-    <div class="template-demo">
-        <p>
-            <strong>Всего напитков:</strong>
-            {{ drink_names|length }}
-        </p>
-
-        <p>
-            <strong>Первый напиток:</strong>
-            {{ drink_names|first }}
-        </p>
-
-        <p>
-            <strong>Последний напиток:</strong>
-            {{ drink_names|last }}
-        </p>
-
-        <p>
-            <strong>Все напитки:</strong>
-            {{ drink_names|join:", " }}
-        </p>
     </div>
 
 {% endblock %}

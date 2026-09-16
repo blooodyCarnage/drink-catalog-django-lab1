@@ -2,6 +2,87 @@ from django.db import models
 from django.urls import reverse
 
 
+class Category(models.Model):
+    name = models.CharField(
+        max_length=100,
+        db_index=True,
+        verbose_name='Название категории'
+    )
+    slug = models.SlugField(
+        max_length=100,
+        unique=True,
+        db_index=True,
+        verbose_name='Slug'
+    )
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
+
+    def get_absolute_url(self):
+        return reverse(
+            'category',
+            kwargs={'cat_slug': self.slug}
+        )
+
+    def __str__(self):
+        return self.name
+
+
+class TagDrink(models.Model):
+    name = models.CharField(
+        max_length=100,
+        db_index=True,
+        verbose_name='Название тега'
+    )
+    slug = models.SlugField(
+        max_length=100,
+        unique=True,
+        db_index=True,
+        verbose_name='Slug'
+    )
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
+
+    def get_absolute_url(self):
+        return reverse(
+            'tag',
+            kwargs={'tag_slug': self.slug}
+        )
+
+    def __str__(self):
+        return self.name
+
+
+class DrinkMeta(models.Model):
+    volume_ml = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Объём, мл'
+    )
+    package = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name='Упаковка'
+    )
+    country = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name='Страна'
+    )
+
+    class Meta:
+        verbose_name = 'Дополнительная информация'
+        verbose_name_plural = 'Дополнительная информация'
+
+    def __str__(self):
+        return f'{self.volume_ml or "—"} мл, {self.package or "без упаковки"}'
+
+
 class AvailableDrinkManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(
@@ -58,6 +139,31 @@ class Drink(models.Model):
         verbose_name='Время изменения'
     )
 
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name='drinks',
+        verbose_name='Категория'
+    )
+
+    tags = models.ManyToManyField(
+        TagDrink,
+        blank=True,
+        related_name='drinks',
+        verbose_name='Теги'
+    )
+
+    meta = models.OneToOneField(
+        DrinkMeta,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='drink',
+        verbose_name='Дополнительная информация'
+    )
+
     objects = models.Manager()
     available_drinks = AvailableDrinkManager()
 
@@ -70,7 +176,10 @@ class Drink(models.Model):
         verbose_name_plural = 'Напитки'
 
     def get_absolute_url(self):
-        return reverse('drink_slug', kwargs={'drink_slug': self.slug})
+        return reverse(
+            'drink_slug',
+            kwargs={'drink_slug': self.slug}
+        )
 
     def __str__(self):
         return self.name

@@ -8,36 +8,78 @@
 
 {% block content %}
 
-    <h2>{{ title }}</h2>
+    <h2>{{ drink.name }}</h2>
 
     <p>
-        <strong>slug =</strong>
-        {{ drink_slug }}
+        <strong>ID:</strong>
+        {{ drink.id }}
     </p>
 
-    {% if drink %}
+    <p>
+        <strong>Slug:</strong>
+        {{ drink.slug }}
+    </p>
 
-        <h3>{{ drink.name }}</h3>
+    <p>
+        <strong>Категория:</strong>
+
+        {% if drink.category %}
+            <a href="{{ drink.category.get_absolute_url }}">
+                {{ drink.category.name }}
+            </a>
+        {% else %}
+            не указана
+        {% endif %}
+    </p>
+
+    <p>
+        <strong>Тип:</strong>
+        {{ drink.type }}
+    </p>
+
+    <p>
+        <strong>Бренд:</strong>
+        {{ drink.brand }}
+    </p>
+
+    <p>
+        <strong>Теги:</strong>
+
+        {% for tag in drink.tags.all %}
+            <a href="{{ tag.get_absolute_url }}">
+                {{ tag.name }}
+            </a>{% if not forloop.last %}, {% endif %}
+        {% empty %}
+            нет тегов
+        {% endfor %}
+    </p>
+
+    {% if drink.meta %}
 
         <p>
-            <strong>Тип:</strong>
-            {{ drink.type }}
+            <strong>Объём:</strong>
+            {{ drink.meta.volume_ml }} мл
         </p>
 
         <p>
-            <strong>Бренд:</strong>
-            {{ drink.brand }}
+            <strong>Упаковка:</strong>
+            {{ drink.meta.package }}
         </p>
 
-        <p>{{ drink.description }}</p>
-
-    {% else %}
-
-        <p>
-            Напиток с таким slug отсутствует
-            в демонстрационном списке.
-        </p>
+        {% if drink.meta.country %}
+            <p>
+                <strong>Страна:</strong>
+                {{ drink.meta.country }}
+            </p>
+        {% endif %}
 
     {% endif %}
+
+    <p>
+        <strong>Статус:</strong>
+        {{ drink.get_available_display }}
+    </p>
+
+    <p>{{ drink.description }}</p>
 
 {% endblock %}

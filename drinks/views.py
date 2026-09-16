@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Drink
+from .models import Drink, Category, TagDrink
 
 drinks_db = [
     {
@@ -64,7 +64,12 @@ def about(request):
 
 
 def drinks_list(request):
-    drinks = Drink.objects.all()
+    drinks = (
+        Drink.objects
+        .select_related('category', 'meta')
+        .prefetch_related('tags')
+        .all()
+    )
 
     drink_names = [drink.name for drink in drinks]
 
@@ -72,15 +77,63 @@ def drinks_list(request):
         'title': 'Каталог напитков',
         'drinks': drinks,
         'drink_names': drink_names,
+        'categories': Category.objects.all(),
+        'tags': TagDrink.objects.all(),
+        'selected_category': None,
+        'selected_tag': None,
     }
 
     return render(request, 'drinks/drinks_list.html', context)
 
+def show_category(request, cat_slug):
+    category = get_object_or_404(Category, slug=cat_slug)
 
+    drinks = (
+        Drink.objects
+        .select_related('category', 'meta')
+        .prefetch_related('tags')
+        .filter(category=category)
+    )
 
+    context = {
+        'title': f'Категория: {category.name}',
+        'drinks': drinks,
+        'drink_names': [drink.name for drink in drinks],
+        'categories': Category.objects.all(),
+        'tags': TagDrink.objects.all(),
+        'selected_category': category,
+        'selected_tag': None,
+    }
+
+    return render(request, 'drinks/drinks_list.html', context)
+
+def show_tag(request, tag_slug):
+    tag = get_object_or_404(TagDrink, slug=tag_slug)
+
+    drinks = (
+        tag.drinks
+        .select_related('category', 'meta')
+        .prefetch_related('tags')
+        .all()
+    )
+
+    context = {
+        'title': f'Тег: {tag.name}',
+        'drinks': drinks,
+        'drink_names': [drink.name for drink in drinks],
+        'categories': Category.objects.all(),
+        'tags': TagDrink.objects.all(),
+        'selected_category': None,
+        'selected_tag': tag,
+    }
+
+    return render(request, 'drinks/drinks_list.html', context)
 
 def drink_by_id(request, drink_id):
-    drink = get_object_or_404(Drink, pk=drink_id)
+    drink = get_object_or_404(
+        Drink.objects.select_related('category', 'meta').prefetch_related('tags'),
+        pk=drink_id
+    )
 
     context = {
         'title': f'Напиток №{drink_id}',
@@ -92,7 +145,10 @@ def drink_by_id(request, drink_id):
 
 
 def drink_by_slug(request, drink_slug):
-    drink = get_object_or_404(Drink, slug=drink_slug)
+    drink = get_object_or_404(
+        Drink.objects.select_related('category', 'meta').prefetch_related('tags'),
+        slug=drink_slug
+    )
 
     context = {
         'title': f'Напиток: {drink.name}',

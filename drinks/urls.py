@@ -15,6 +15,18 @@ urlpatterns = [
     path("drinks/", views.drinks_list, name="drinks"),
 
     path(
+        "category/<slug:cat_slug>/",
+        views.show_category,
+        name="category"
+    ),
+
+    path(
+        "tag/<slug:tag_slug>/",
+        views.show_tag,
+        name="tag"
+    ),
+
+    path(
         "drinks/<int:drink_id>/",
         views.drink_by_id,
         name="drink_id"
