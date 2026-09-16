@@ -36,7 +36,7 @@
 
                 <p>{{ drink.description }}</p>
 
-                {% if drink.is_available %}
+                {% if drink.available %}
                     <p class="available">
                         В наличии
                     </p>
@@ -51,7 +51,7 @@
                         Открыть по ID
                     </a>
                     |
-                    <a href="{% url 'drink_slug' drink.slug %}">
+                    <a href="{{ drink.get_absolute_url }}">
                         Открыть по slug
                     </a>
                 </p>

@@ -1,5 +1,5 @@
-from django.shortcuts import redirect, render
-
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Drink
 
 drinks_db = [
     {
@@ -64,53 +64,43 @@ def about(request):
 
 
 def drinks_list(request):
-    drink_names = [drink["name"] for drink in drinks_db]
+    drinks = Drink.objects.all()
 
-    data = {
-        "title": "Каталог напитков",
-        "drinks": drinks_db,
-        "drink_names": drink_names,
+    drink_names = [drink.name for drink in drinks]
+
+    context = {
+        'title': 'Каталог напитков',
+        'drinks': drinks,
+        'drink_names': drink_names,
     }
 
-    return render(request, "drinks/drinks_list.html", data)
+    return render(request, 'drinks/drinks_list.html', context)
+
+
 
 
 def drink_by_id(request, drink_id):
-    drink = next(
-        (
-            drink
-            for drink in drinks_db
-            if drink["id"] == drink_id
-        ),
-        None
-    )
+    drink = get_object_or_404(Drink, pk=drink_id)
 
-    data = {
-        "title": "Напиток по ID",
-        "drink_id": drink_id,
-        "drink": drink,
+    context = {
+        'title': f'Напиток №{drink_id}',
+        'drink_id': drink_id,
+        'drink': drink,
     }
 
-    return render(request, "drinks/drink_id.html", data)
+    return render(request, 'drinks/drink_id.html', context)
 
 
 def drink_by_slug(request, drink_slug):
-    drink = next(
-        (
-            drink
-            for drink in drinks_db
-            if drink["slug"] == drink_slug
-        ),
-        None
-    )
+    drink = get_object_or_404(Drink, slug=drink_slug)
 
-    data = {
-        "title": "Страница напитка",
-        "drink_slug": drink_slug,
-        "drink": drink,
+    context = {
+        'title': f'Напиток: {drink.name}',
+        'drink_slug': drink_slug,
+        'drink': drink,
     }
 
-    return render(request, "drinks/drink_slug.html", data)
+    return render(request, 'drinks/drink_slug.html', context)
 
 
 def search(request):
