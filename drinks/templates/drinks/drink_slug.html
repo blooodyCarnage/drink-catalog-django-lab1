@@ -9,6 +9,13 @@
 {% block content %}
 
     <h2>{{ drink.name }}</h2>
+        {% if drink.photo %}
+            <img
+                src="{{ drink.photo.url }}"
+                alt="{{ drink.name }}"
+                class="drink-detail-image"
+            >
+        {% endif %}
 
     <p>
         <strong>ID:</strong>

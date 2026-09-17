@@ -123,6 +123,13 @@ class Drink(models.Model):
         verbose_name='Описание'
     )
 
+    photo = models.ImageField(
+        upload_to='photos/%Y/%m/%d/',
+        blank=True,
+        null=True,
+        verbose_name='Изображение'
+    )
+
     available = models.BooleanField(
         choices=Availability.choices,
         default=Availability.AVAILABLE,

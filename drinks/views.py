@@ -1,5 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Drink, Category, TagDrink
+from .forms import (
+    AddDrinkPlainForm,
+    AddDrinkModelForm,
+    UploadFileForm,
+)
+import uuid
+from pathlib import Path
+
+from django.conf import settings
 
 drinks_db = [
     {
@@ -158,6 +167,109 @@ def drink_by_slug(request, drink_slug):
 
     return render(request, 'drinks/drink_slug.html', context)
 
+def add_plain(request):
+    if request.method == 'POST':
+        form = AddDrinkPlainForm(request.POST)
+
+        if form.is_valid():
+            drink = Drink.objects.create(
+                name=form.cleaned_data['name'],
+                slug=form.cleaned_data['slug'],
+                type=form.cleaned_data['type'],
+                brand=form.cleaned_data['brand'],
+                description=form.cleaned_data['description'],
+                available=form.cleaned_data['available'],
+                category=form.cleaned_data['category'],
+            )
+
+            drink.tags.set(form.cleaned_data['tags'])
+
+            return redirect('drinks')
+    else:
+        form = AddDrinkPlainForm()
+
+    context = {
+        'title': 'Добавление напитка',
+        'form': form,
+    }
+
+    return render(
+        request,
+        'drinks/add_plain.html',
+        context
+    )
+
+def add_model(request):
+    if request.method == 'POST':
+        form = AddDrinkModelForm(
+            request.POST,
+            request.FILES
+        )
+
+        if form.is_valid():
+            form.save()
+            return redirect('drinks')
+    else:
+        form = AddDrinkModelForm()
+
+    context = {
+        'title': 'Добавление напитка через ModelForm',
+        'form': form,
+    }
+
+    return render(
+        request,
+        'drinks/add_model.html',
+        context
+    )
+
+def handle_uploaded_file(file):
+    extension = Path(file.name).suffix
+    unique_name = f'{uuid.uuid4()}{extension}'
+
+    upload_dir = settings.MEDIA_ROOT / 'uploads'
+    upload_dir.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    file_path = upload_dir / unique_name
+
+    with open(file_path, 'wb+') as destination:
+        for chunk in file.chunks():
+            destination.write(chunk)
+
+    return f'uploads/{unique_name}'
+
+def upload_file(request):
+    uploaded_file = None
+
+    if request.method == 'POST':
+        form = UploadFileForm(
+            request.POST,
+            request.FILES
+        )
+
+        if form.is_valid():
+            uploaded_file = handle_uploaded_file(
+                form.cleaned_data['file']
+            )
+
+            form = UploadFileForm()
+    else:
+        form = UploadFileForm()
+
+    context = {
+        'title': 'Загрузка файла',
+        'form': form,
+        'uploaded_file': uploaded_file,
+    }
+
+    return render(
+        request,
+        'drinks/upload_file.html',
+        context
+    )
 
 def search(request):
     drink_type = request.GET.get("type", "")

@@ -75,6 +75,18 @@
 
                     <article class="drink-card">
 
+                        {% if drink.photo %}
+                            <img
+                                src="{{ drink.photo.url }}"
+                                alt="{{ drink.name }}"
+                                class="drink-image"
+                            >
+                        {% else %}
+                            <div class="drink-no-image">
+                                Нет изображения
+                            </div>
+                        {% endif %}
+
                         <h3>{{ drink.name }}</h3>
 
                         <p>

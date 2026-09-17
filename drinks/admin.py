@@ -1,5 +1,5 @@
 from django.contrib import admin, messages
-
+from django.utils.html import format_html
 from .models import Drink, Category, TagDrink, DrinkMeta
 
 
@@ -27,6 +27,7 @@ class HasTagsFilter(admin.SimpleListFilter):
 class DrinkAdmin(admin.ModelAdmin):
     list_display = (
         'name',
+        'post_photo',
         'type',
         'brand',
         'available',
@@ -69,6 +70,8 @@ class DrinkAdmin(admin.ModelAdmin):
         'type',
         'brand',
         'description',
+        'photo',
+        'post_photo',
         'available',
         'category',
         'tags',
@@ -78,6 +81,7 @@ class DrinkAdmin(admin.ModelAdmin):
     )
 
     readonly_fields = (
+        'post_photo',
         'time_create',
         'time_update',
     )
@@ -87,6 +91,18 @@ class DrinkAdmin(admin.ModelAdmin):
     }
 
     filter_horizontal = ('tags',)
+
+    @admin.display(description='Изображение')
+    def post_photo(self, drink):
+        if drink.photo:
+            return format_html(
+                '<img src="{}" width="70" height="70" '
+                'style="object-fit: cover; border-radius: 6px;">',
+                drink.photo.url
+            )
+
+        return 'Без изображения'
+
 
     @admin.display(description='Краткое описание')
     def short_description(self, drink):

@@ -12,12 +12,30 @@ urlpatterns = [
 
     path("about/", views.about, name="about"),
 
+
+    path(
+        "add-plain/",
+        views.add_plain,
+        name="add_plain"
+    ),
+
+    path(
+        "add-model/",
+        views.add_model,
+        name="add_model"
+    ),
+
     path("drinks/", views.drinks_list, name="drinks"),
 
     path(
         "category/<slug:cat_slug>/",
         views.show_category,
         name="category"
+    ),
+    path(
+        "upload-file/",
+        views.upload_file,
+        name="upload_file"
     ),
 
     path(

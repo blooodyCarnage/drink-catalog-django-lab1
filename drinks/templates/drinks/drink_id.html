@@ -18,6 +18,13 @@
     {% if drink %}
 
         <h3>{{ drink.name }}</h3>
+            {% if drink.photo %}
+                <img
+                    src="{{ drink.photo.url }}"
+                    alt="{{ drink.name }}"
+                    class="drink-detail-image"
+                >
+            {% endif %}
 
         <p>
             <strong>Тип:</strong>

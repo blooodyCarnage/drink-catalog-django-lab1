@@ -229,5 +229,48 @@ button:hover {
         grid-template-columns: 1fr;
     }
 }
+.form-error,
+.errorlist {
+    color: #a12c2c;
+    font-weight: bold;
+}
 
+form input,
+form select,
+form textarea {
+    max-width: 100%;
+}
+
+form textarea {
+    resize: vertical;
+}
+.drink-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.drink-no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 180px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    background-color: #e8edf3;
+    color: #66717c;
+}
+
+.drink-detail-image {
+    display: block;
+    width: 100%;
+    max-width: 500px;
+    max-height: 420px;
+    object-fit: contain;
+    margin-bottom: 20px;
+    border-radius: 10px;
+}
 }
