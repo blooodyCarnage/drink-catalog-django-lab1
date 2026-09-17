@@ -1,0 +1,42 @@
+#header {
+    background: #1f3c5c;
+}
+
+#branding h1,
+#branding h1 a:link,
+#branding h1 a:visited {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+div.breadcrumbs {
+    background: #1f6fb2;
+}
+
+.module h2,
+.module caption,
+.inline-group h2 {
+    background: #1f3c5c;
+}
+
+.button,
+input[type="submit"],
+input[type="button"],
+.submit-row input,
+a.button {
+    background: #1f6fb2;
+}
+
+.button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+.submit-row input:hover,
+a.button:hover {
+    background: #18598f;
+}
+
+.button.default,
+input[type="submit"].default,
+.submit-row input.default {
+    background: #1f3c5c;
+}
