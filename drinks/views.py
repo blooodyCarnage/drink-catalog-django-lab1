@@ -5,6 +5,10 @@ from .forms import (
     AddDrinkModelForm,
     UploadFileForm,
 )
+from django.views.generic import ListView, DetailView
+
+from .utils import DataMixin
+
 import uuid
 from pathlib import Path
 
@@ -72,71 +76,94 @@ def about(request):
     return render(request, "drinks/about.html", data)
 
 
-def drinks_list(request):
-    drinks = (
-        Drink.objects
-        .select_related('category', 'meta')
-        .prefetch_related('tags')
-        .all()
-    )
+class DrinkListView(DataMixin, ListView):
+    template_name = 'drinks/drinks_list.html'
+    context_object_name = 'drinks'
 
-    drink_names = [drink.name for drink in drinks]
+    def get_queryset(self):
+        return (
+            Drink.objects
+            .select_related(
+                'category',
+                'meta'
+            )
+            .prefetch_related('tags')
+        )
 
-    context = {
-        'title': 'Каталог напитков',
-        'drinks': drinks,
-        'drink_names': drink_names,
-        'categories': Category.objects.all(),
-        'tags': TagDrink.objects.all(),
-        'selected_category': None,
-        'selected_tag': None,
-    }
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(
+            **kwargs
+        )
 
-    return render(request, 'drinks/drinks_list.html', context)
+        return self.get_mixin_context(
+            context,
+            title='Каталог напитков',
+            selected_category=None,
+            selected_tag=None,
+        )
 
-def show_category(request, cat_slug):
-    category = get_object_or_404(Category, slug=cat_slug)
+class DrinkCategory(DataMixin, ListView):
+    template_name = 'drinks/drinks_list.html'
+    context_object_name = 'drinks'
 
-    drinks = (
-        Drink.objects
-        .select_related('category', 'meta')
-        .prefetch_related('tags')
-        .filter(category=category)
-    )
+    def get_queryset(self):
+        self.category = get_object_or_404(
+            Category,
+            slug=self.kwargs['cat_slug']
+        )
 
-    context = {
-        'title': f'Категория: {category.name}',
-        'drinks': drinks,
-        'drink_names': [drink.name for drink in drinks],
-        'categories': Category.objects.all(),
-        'tags': TagDrink.objects.all(),
-        'selected_category': category,
-        'selected_tag': None,
-    }
+        return (
+            Drink.objects
+            .filter(category=self.category)
+            .select_related(
+                'category',
+                'meta'
+            )
+            .prefetch_related('tags')
+        )
 
-    return render(request, 'drinks/drinks_list.html', context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(
+            **kwargs
+        )
 
-def show_tag(request, tag_slug):
-    tag = get_object_or_404(TagDrink, slug=tag_slug)
+        return self.get_mixin_context(
+            context,
+            title=f'Категория: {self.category.name}',
+            selected_category=self.category,
+            selected_tag=None,
+        )
 
-    drinks = (
-        tag.drinks
-        .select_related('category', 'meta')
-        .prefetch_related('tags')
-        .all()
-    )
+class DrinkTag(DataMixin, ListView):
+    template_name = 'drinks/drinks_list.html'
+    context_object_name = 'drinks'
 
-    context = {
-        'title': f'Тег: {tag.name}',
-        'drinks': drinks,
-        'drink_names': [drink.name for drink in drinks],
-        'categories': Category.objects.all(),
-        'tags': TagDrink.objects.all(),
-        'selected_category': None,
-        'selected_tag': tag,
-    }
+    def get_queryset(self):
+        self.tag = get_object_or_404(
+            TagDrink,
+            slug=self.kwargs['tag_slug']
+        )
 
-    return render(request, 'drinks/drinks_list.html', context)
+        return (
+            self.tag.drinks
+            .select_related(
+                'category',
+                'meta'
+            )
+            .prefetch_related('tags')
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(
+            **kwargs
+        )
+
+        return self.get_mixin_context(
+            context,
+            title=f'Тег: {self.tag.name}',
+            selected_category=None,
+            selected_tag=self.tag,
+        )
 
 def drink_by_id(request, drink_id):
     drink = get_object_or_404(
@@ -153,19 +180,35 @@ def drink_by_id(request, drink_id):
     return render(request, 'drinks/drink_id.html', context)
 
 
-def drink_by_slug(request, drink_slug):
-    drink = get_object_or_404(
-        Drink.objects.select_related('category', 'meta').prefetch_related('tags'),
-        slug=drink_slug
-    )
+class ShowDrink(DataMixin, DetailView):
+    model = Drink
+    template_name = 'drinks/drink_slug.html'
+    context_object_name = 'drink'
 
-    context = {
-        'title': f'Напиток: {drink.name}',
-        'drink_slug': drink_slug,
-        'drink': drink,
-    }
+    slug_field = 'slug'
+    slug_url_kwarg = 'drink_slug'
 
-    return render(request, 'drinks/drink_slug.html', context)
+    def get_queryset(self):
+        return (
+            Drink.objects
+            .select_related(
+                'category',
+                'meta'
+            )
+            .prefetch_related('tags')
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(
+            **kwargs
+        )
+
+        return self.get_mixin_context(
+            context,
+            title=f'Напиток: {self.object.name}',
+            selected_category=self.object.category,
+            selected_tag=None,
+        )
 
 def add_plain(request):
     if request.method == 'POST':

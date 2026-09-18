@@ -25,13 +25,18 @@ urlpatterns = [
         name="add_model"
     ),
 
-    path("drinks/", views.drinks_list, name="drinks"),
+    path(
+        "drinks/",
+        views.DrinkListView.as_view(),
+        name="drinks"
+    ),
 
     path(
         "category/<slug:cat_slug>/",
-        views.show_category,
+        views.DrinkCategory.as_view(),
         name="category"
     ),
+
     path(
         "upload-file/",
         views.upload_file,
@@ -40,7 +45,7 @@ urlpatterns = [
 
     path(
         "tag/<slug:tag_slug>/",
-        views.show_tag,
+        views.DrinkTag.as_view(),
         name="tag"
     ),
 
@@ -52,7 +57,7 @@ urlpatterns = [
 
     path(
         "drinks/<slug:drink_slug>/",
-        views.drink_by_slug,
+        views.ShowDrink.as_view(),
         name="drink_slug"
     ),
 
