@@ -1,0 +1,75 @@
+{% extends "drinks/base.html" %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+
+<h2>{{ title }}</h2>
+
+{% if profile.avatar %}
+
+    <img
+        src="{{ profile.avatar.url }}"
+        alt="Аватар {{ user.username }}"
+        class="profile-avatar"
+    >
+
+{% else %}
+
+    <p>Аватар не загружен</p>
+
+{% endif %}
+
+<p>
+    <strong>Логин:</strong>
+    {{ user.username }}
+</p>
+
+<p>
+    <strong>E-mail:</strong>
+    {{ user.email|default:"не указан" }}
+</p>
+
+<p>
+    <strong>Имя:</strong>
+    {{ user.first_name|default:"не указано" }}
+</p>
+
+<p>
+    <strong>Фамилия:</strong>
+    {{ user.last_name|default:"не указана" }}
+</p>
+
+<p>
+    <strong>Дата рождения:</strong>
+
+    {{ profile.birth_date|date:"d.m.Y"|default:"не указана" }}
+</p>
+
+<p>
+    <strong>О себе:</strong>
+
+    {{ profile.bio|default:"информация не указана" }}
+</p>
+
+<p>
+
+    <a
+        class="button"
+        href="{% url 'users:profile_edit' %}"
+    >
+        Редактировать профиль
+    </a>
+
+    <a
+        class="button"
+        href="{% url 'users:password_change' %}"
+    >
+        Сменить пароль
+    </a>
+
+</p>
+
+{% endblock %}

@@ -176,11 +176,22 @@ class Drink(models.Model):
 
     class Meta:
         ordering = ['-time_create']
+
         indexes = [
-            models.Index(fields=['-time_create']),
+            models.Index(
+                fields=['-time_create']
+            ),
         ]
+
         verbose_name = 'Напиток'
         verbose_name_plural = 'Напитки'
+
+        permissions = [
+            (
+                'can_publish_drink',
+                'Может публиковать напитки',
+            ),
+        ]
 
     def get_absolute_url(self):
         return reverse(

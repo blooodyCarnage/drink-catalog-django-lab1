@@ -87,8 +87,10 @@
         {{ drink.get_available_display }}
     </p>
 
-    <p>{{ drink.description }}</p>
     <p>
+
+    {% if perms.drinks.change_drink %}
+
         <a
             href="{% url 'edit_drink' drink.slug %}"
             class="button"
@@ -96,12 +98,20 @@
             Редактировать
         </a>
 
+    {% endif %}
+
+
+    {% if perms.drinks.delete_drink %}
+
         <a
             href="{% url 'delete_drink' drink.slug %}"
             class="button"
         >
             Удалить
         </a>
-    </p>
+
+    {% endif %}
+
+</p>
 
 {% endblock %}

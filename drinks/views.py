@@ -24,6 +24,11 @@ from pathlib import Path
 
 from django.conf import settings
 
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+)
+
 drinks_db = [
     {
         "id": 1,
@@ -75,7 +80,11 @@ def index(request):
     return render(request, "drinks/index.html", data)
 
 
-class AboutView(DataMixin, TemplateView):
+class AboutView(
+    LoginRequiredMixin,
+    DataMixin,
+    TemplateView,
+):
     template_name = 'drinks/about.html'
 
     extra_context = {
@@ -221,7 +230,12 @@ class ShowDrink(DataMixin, DetailView):
             selected_tag=None,
         )
 
-class AddDrink(DataMixin, FormView):
+class AddDrink(
+    PermissionRequiredMixin,
+    DataMixin,
+    FormView,
+):
+    permission_required = 'drinks.add_drink'
     form_class = AddDrinkPlainForm
     template_name = 'drinks/add_plain.html'
     success_url = reverse_lazy('drinks')
@@ -245,7 +259,13 @@ class AddDrink(DataMixin, FormView):
             selected_tag=None,
         )
 
-class CreateDrink(DataMixin, CreateView):
+class CreateDrink(
+    PermissionRequiredMixin,
+    DataMixin,
+    CreateView,
+):
+    permission_required = 'drinks.add_drink'
+
     form_class = AddDrinkModelForm
     template_name = 'drinks/add_model.html'
     success_url = reverse_lazy('drinks')
@@ -278,7 +298,13 @@ def handle_uploaded_file(file):
 
     return f'uploads/{unique_name}'
 
-class UpdateDrink(DataMixin, UpdateView):
+class UpdateDrink(
+    PermissionRequiredMixin,
+    DataMixin,
+    UpdateView,
+):
+    permission_required = 'drinks.change_drink'
+
     model = Drink
     form_class = AddDrinkModelForm
     template_name = 'drinks/add_model.html'
@@ -295,7 +321,13 @@ class UpdateDrink(DataMixin, UpdateView):
             selected_tag=None,
         )
 
-class DeleteDrink(DataMixin, DeleteView):
+class DeleteDrink(
+    PermissionRequiredMixin,
+    DataMixin,
+    DeleteView,
+):
+    permission_required = 'drinks.delete_drink'
+
     model = Drink
     template_name = 'drinks/drink_confirm_delete.html'
     context_object_name = 'drink'
@@ -312,7 +344,10 @@ class DeleteDrink(DataMixin, DeleteView):
             selected_tag=None,
         )
 
-class UploadFileView(View):
+class UploadFileView(
+    LoginRequiredMixin,
+    View,
+):
     template_name = 'drinks/upload_file.html'
 
     def get(self, request):

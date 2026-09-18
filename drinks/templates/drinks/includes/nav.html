@@ -1,10 +1,80 @@
 <nav class="main-nav">
-    <a href="{% url 'home' %}">Главная</a>
-    <a href="{% url 'about' %}">О сайте</a>
-    <a href="{% url 'drinks' %}">Каталог</a>
-    <a href="{% url 'add_plain' %}">Обычная форма</a>
-    <a href="{% url 'add_model' %}">ModelForm</a>
-    <a href="{% url 'upload_file' %}">Загрузка файла</a>
-    <a href="{% url 'search' %}">Поиск</a>
-    <a href="{% url 'archive' 2025 %}">Архив</a>
+
+    <a href="{% url 'home' %}">
+        Главная
+    </a>
+
+    <a href="{% url 'about' %}">
+        О сайте
+    </a>
+
+    <a href="{% url 'drinks' %}">
+        Каталог
+    </a>
+
+    {% if perms.drinks.add_drink %}
+
+        <a href="{% url 'add_plain' %}">
+            Обычная форма
+        </a>
+
+        <a href="{% url 'add_model' %}">
+            ModelForm
+        </a>
+
+    {% endif %}
+
+    {% if user.is_authenticated %}
+
+        <a href="{% url 'upload_file' %}">
+            Загрузка файла
+        </a>
+
+    {% endif %}
+
+    <a href="{% url 'search' %}">
+        Поиск
+    </a>
+
+    <a href="{% url 'archive' 2025 %}">
+        Архив
+    </a>
+
+    <span class="nav-spacer"></span>
+
+    {% if user.is_authenticated %}
+
+        <a href="{% url 'users:profile' %}">
+            Профиль: {{ user.username }}
+        </a>
+
+        <form
+            method="post"
+            action="{% url 'users:logout' %}"
+            class="logout-form"
+        >
+
+            {% csrf_token %}
+
+            <button
+                type="submit"
+                class="nav-button"
+            >
+                Выйти
+            </button>
+
+        </form>
+
+    {% else %}
+
+        <a href="{% url 'users:login' %}">
+            Войти
+        </a>
+
+        <a href="{% url 'users:register' %}">
+            Регистрация
+        </a>
+
+    {% endif %}
+
 </nav>

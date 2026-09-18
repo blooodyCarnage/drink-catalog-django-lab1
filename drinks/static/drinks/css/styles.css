@@ -302,3 +302,53 @@ a.page-num:hover {
     background-color: #1f3c5c;
     color: white;
 }
+.nav-spacer {
+    flex: 1;
+}
+
+.logout-form {
+    margin: 0;
+}
+
+.nav-button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: white;
+    font: inherit;
+    font-weight: bold;
+}
+
+.nav-button:hover {
+    background: transparent;
+    text-decoration: underline;
+}
+
+.user-form {
+    max-width: 620px;
+}
+
+.user-form .form-input,
+.user-form input,
+.user-form textarea,
+.user-form select {
+    width: 100%;
+    padding: 9px 10px;
+    border: 1px solid #b9c3ce;
+    border-radius: 7px;
+}
+
+.help-text {
+    display: block;
+    margin-top: 6px;
+    color: #66717c;
+}
+
+.profile-avatar {
+    display: block;
+    width: 180px;
+    height: 180px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    object-fit: cover;
+}

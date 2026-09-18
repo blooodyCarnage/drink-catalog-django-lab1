@@ -1,0 +1,64 @@
+{% extends "drinks/base.html" %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+
+<h2>{{ title }}</h2>
+
+<form method="post" class="user-form">
+
+    {% csrf_token %}
+
+    <input
+        type="hidden"
+        name="next"
+        value="{{ next }}"
+    >
+
+    <div class="form-error">
+        {{ form.non_field_errors }}
+    </div>
+
+    {% for field in form %}
+
+        <p>
+            <label for="{{ field.id_for_label }}">
+                {{ field.label }}:
+            </label>
+
+            <br>
+
+            {{ field }}
+
+            {% if field.errors %}
+                <span class="form-error">
+                    {{ field.errors }}
+                </span>
+            {% endif %}
+        </p>
+
+    {% endfor %}
+
+    <button type="submit">
+        Войти
+    </button>
+
+</form>
+
+<p>
+    <a href="{% url 'users:password_reset' %}">
+        Забыли пароль?
+    </a>
+</p>
+
+<p>
+    Нет аккаунта?
+    <a href="{% url 'users:register' %}">
+        Регистрация
+    </a>
+</p>
+
+{% endblock %}
