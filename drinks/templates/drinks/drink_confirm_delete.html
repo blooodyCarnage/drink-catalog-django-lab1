@@ -1,0 +1,44 @@
+{% extends "drinks/base.html" %}
+
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+
+{% block content %}
+
+    <h2>{{ title }}</h2>
+
+    <p>
+        Вы действительно хотите удалить напиток:
+    </p>
+
+    <p>
+        <strong>{{ drink.name }}</strong>
+    </p>
+
+    {% if drink.photo %}
+        <img
+            src="{{ drink.photo.url }}"
+            alt="{{ drink.name }}"
+            class="drink-detail-image"
+        >
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <button type="submit">
+            Удалить
+        </button>
+
+        <a
+            href="{{ drink.get_absolute_url }}"
+            class="button"
+        >
+            Отмена
+        </a>
+    </form>
+
+{% endblock %}

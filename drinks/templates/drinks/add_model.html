@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-    <h2>Добавление напитка через ModelForm</h2>
+    <h2>{{ title }}</h2>
 
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
@@ -29,6 +29,12 @@
             </p>
         {% endfor %}
 
-        <button type="submit">Добавить</button>
+        <button type="submit">
+            {% if object %}
+                Сохранить
+            {% else %}
+                Добавить
+            {% endif %}
+        </button>
     </form>
 {% endblock %}

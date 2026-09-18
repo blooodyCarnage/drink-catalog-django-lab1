@@ -88,5 +88,20 @@
     </p>
 
     <p>{{ drink.description }}</p>
+    <p>
+        <a
+            href="{% url 'edit_drink' drink.slug %}"
+            class="button"
+        >
+            Редактировать
+        </a>
+
+        <a
+            href="{% url 'delete_drink' drink.slug %}"
+            class="button"
+        >
+            Удалить
+        </a>
+    </p>
 
 {% endblock %}

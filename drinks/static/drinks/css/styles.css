@@ -273,4 +273,32 @@ form textarea {
     margin-bottom: 20px;
     border-radius: 10px;
 }
+.list-pages {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+    margin-top: 28px;
+    margin-bottom: 20px;
+}
+
+.page-num {
+    display: inline-block;
+    min-width: 38px;
+    padding: 8px 12px;
+    border-radius: 7px;
+    background-color: #e8eef5;
+    color: #1f4b73;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a.page-num:hover {
+    background-color: #d4e1ed;
+}
+
+.page-num-selected {
+    background-color: #1f3c5c;
+    color: white;
 }

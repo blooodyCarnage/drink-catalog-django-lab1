@@ -5,7 +5,17 @@ from .forms import (
     AddDrinkModelForm,
     UploadFileForm,
 )
-from django.views.generic import ListView, DetailView
+from django.urls import reverse_lazy
+from django.views import View
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    FormView,
+    ListView,
+    TemplateView,
+    UpdateView,
+)
 
 from .utils import DataMixin
 
@@ -65,15 +75,16 @@ def index(request):
     return render(request, "drinks/index.html", data)
 
 
-def about(request):
-    data = {
-        "title": "О сайте",
-        "description": (
-            "Drink Catalog — учебный проект на Django "
-            "для работы с каталогом напитков."
+class AboutView(DataMixin, TemplateView):
+    template_name = 'drinks/about.html'
+
+    extra_context = {
+        'title': 'О сайте',
+        'description': (
+            'Drink Catalog — учебный проект на Django '
+            'для работы с каталогом напитков.'
         ),
     }
-    return render(request, "drinks/about.html", data)
 
 
 class DrinkListView(DataMixin, ListView):
@@ -210,61 +221,44 @@ class ShowDrink(DataMixin, DetailView):
             selected_tag=None,
         )
 
-def add_plain(request):
-    if request.method == 'POST':
-        form = AddDrinkPlainForm(request.POST)
+class AddDrink(DataMixin, FormView):
+    form_class = AddDrinkPlainForm
+    template_name = 'drinks/add_plain.html'
+    success_url = reverse_lazy('drinks')
 
-        if form.is_valid():
-            drink = Drink.objects.create(
-                name=form.cleaned_data['name'],
-                slug=form.cleaned_data['slug'],
-                type=form.cleaned_data['type'],
-                brand=form.cleaned_data['brand'],
-                description=form.cleaned_data['description'],
-                available=form.cleaned_data['available'],
-                category=form.cleaned_data['category'],
-            )
+    def form_valid(self, form):
+        data = form.cleaned_data.copy()
+        tags = data.pop('tags')
 
-            drink.tags.set(form.cleaned_data['tags'])
+        drink = Drink.objects.create(**data)
+        drink.tags.set(tags)
 
-            return redirect('drinks')
-    else:
-        form = AddDrinkPlainForm()
+        return super().form_valid(form)
 
-    context = {
-        'title': 'Добавление напитка',
-        'form': form,
-    }
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
-    return render(
-        request,
-        'drinks/add_plain.html',
-        context
-    )
-
-def add_model(request):
-    if request.method == 'POST':
-        form = AddDrinkModelForm(
-            request.POST,
-            request.FILES
+        return self.get_mixin_context(
+            context,
+            title='Добавление напитка через FormView',
+            selected_category=None,
+            selected_tag=None,
         )
 
-        if form.is_valid():
-            form.save()
-            return redirect('drinks')
-    else:
-        form = AddDrinkModelForm()
+class CreateDrink(DataMixin, CreateView):
+    form_class = AddDrinkModelForm
+    template_name = 'drinks/add_model.html'
+    success_url = reverse_lazy('drinks')
 
-    context = {
-        'title': 'Добавление напитка через ModelForm',
-        'form': form,
-    }
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
-    return render(
-        request,
-        'drinks/add_model.html',
-        context
-    )
+        return self.get_mixin_context(
+            context,
+            title='Добавление напитка через CreateView',
+            selected_category=None,
+            selected_tag=None,
+        )
 
 def handle_uploaded_file(file):
     extension = Path(file.name).suffix
@@ -284,14 +278,63 @@ def handle_uploaded_file(file):
 
     return f'uploads/{unique_name}'
 
-def upload_file(request):
-    uploaded_file = None
+class UpdateDrink(DataMixin, UpdateView):
+    model = Drink
+    form_class = AddDrinkModelForm
+    template_name = 'drinks/add_model.html'
+    slug_url_kwarg = 'drink_slug'
+    success_url = reverse_lazy('drinks')
 
-    if request.method == 'POST':
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        return self.get_mixin_context(
+            context,
+            title=f'Редактирование напитка: {self.object.name}',
+            selected_category=self.object.category,
+            selected_tag=None,
+        )
+
+class DeleteDrink(DataMixin, DeleteView):
+    model = Drink
+    template_name = 'drinks/drink_confirm_delete.html'
+    context_object_name = 'drink'
+    slug_url_kwarg = 'drink_slug'
+    success_url = reverse_lazy('drinks')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        return self.get_mixin_context(
+            context,
+            title=f'Удаление напитка: {self.object.name}',
+            selected_category=self.object.category,
+            selected_tag=None,
+        )
+
+class UploadFileView(View):
+    template_name = 'drinks/upload_file.html'
+
+    def get(self, request):
+        context = {
+            'title': 'Загрузка файла',
+            'form': UploadFileForm(),
+            'uploaded_file': None,
+        }
+
+        return render(
+            request,
+            self.template_name,
+            context
+        )
+
+    def post(self, request):
         form = UploadFileForm(
             request.POST,
             request.FILES
         )
+
+        uploaded_file = None
 
         if form.is_valid():
             uploaded_file = handle_uploaded_file(
@@ -299,20 +342,18 @@ def upload_file(request):
             )
 
             form = UploadFileForm()
-    else:
-        form = UploadFileForm()
 
-    context = {
-        'title': 'Загрузка файла',
-        'form': form,
-        'uploaded_file': uploaded_file,
-    }
+        context = {
+            'title': 'Загрузка файла',
+            'form': form,
+            'uploaded_file': uploaded_file,
+        }
 
-    return render(
-        request,
-        'drinks/upload_file.html',
-        context
-    )
+        return render(
+            request,
+            self.template_name,
+            context
+        )
 
 def search(request):
     drink_type = request.GET.get("type", "")

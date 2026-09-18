@@ -8,20 +8,27 @@ register_converter(FourDigitYearConverter, "year4")
 
 
 urlpatterns = [
-    path("", views.index, name="home"),
+    path(
+        "",
+        views.index,
+        name="home"
+    ),
 
-    path("about/", views.about, name="about"),
-
+    path(
+        "about/",
+        views.AboutView.as_view(),
+        name="about"
+    ),
 
     path(
         "add-plain/",
-        views.add_plain,
+        views.AddDrink.as_view(),
         name="add_plain"
     ),
 
     path(
         "add-model/",
-        views.add_model,
+        views.CreateDrink.as_view(),
         name="add_model"
     ),
 
@@ -39,7 +46,7 @@ urlpatterns = [
 
     path(
         "upload-file/",
-        views.upload_file,
+        views.UploadFileView.as_view(),
         name="upload_file"
     ),
 
@@ -53,6 +60,18 @@ urlpatterns = [
         "drinks/<int:drink_id>/",
         views.drink_by_id,
         name="drink_id"
+    ),
+
+    path(
+        "drinks/<slug:drink_slug>/edit/",
+        views.UpdateDrink.as_view(),
+        name="edit_drink"
+    ),
+
+    path(
+        "drinks/<slug:drink_slug>/delete/",
+        views.DeleteDrink.as_view(),
+        name="delete_drink"
     ),
 
     path(
