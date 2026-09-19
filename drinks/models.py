@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 
@@ -171,6 +172,36 @@ class Drink(models.Model):
         verbose_name='Дополнительная информация'
     )
 
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='drinks',
+        verbose_name='Автор'
+    )
+
+    liked_by = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        related_name='liked_drinks',
+        verbose_name='Лайки'
+    )
+
+    disliked_by = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        related_name='disliked_drinks',
+        verbose_name='Дизлайки'
+    )
+
+    reposted_by = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        related_name='reposted_drinks',
+        verbose_name='Репосты'
+    )
+
     objects = models.Manager()
     available_drinks = AvailableDrinkManager()
 
@@ -201,3 +232,35 @@ class Drink(models.Model):
 
     def __str__(self):
         return self.name
+
+class Comment(models.Model):
+    drink = models.ForeignKey(
+        Drink,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Напиток'
+    )
+
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='drink_comments',
+        verbose_name='Автор'
+    )
+
+    text = models.TextField(
+        verbose_name='Текст комментария'
+    )
+
+    time_create = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Время создания'
+    )
+
+    class Meta:
+        ordering = ['-time_create']
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+
+    def __str__(self):
+        return f'{self.author}: {self.text[:30]}'

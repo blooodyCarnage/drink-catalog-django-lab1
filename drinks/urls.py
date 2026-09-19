@@ -75,6 +75,30 @@ urlpatterns = [
     ),
 
     path(
+        "drinks/<slug:drink_slug>/comment/",
+        views.add_comment,
+        name="add_comment"
+    ),
+
+    path(
+        "drinks/<slug:drink_slug>/like/",
+        views.like_drink,
+        name="like_drink"
+    ),
+
+    path(
+        "drinks/<slug:drink_slug>/dislike/",
+        views.dislike_drink,
+        name="dislike_drink"
+    ),
+
+    path(
+        "drinks/<slug:drink_slug>/repost/",
+        views.repost_drink,
+        name="repost_drink"
+    ),
+
+    path(
         "drinks/<slug:drink_slug>/",
         views.ShowDrink.as_view(),
         name="drink_slug"

@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models import Drink, Category, TagDrink
+from .models import Drink, Category, TagDrink, Comment
 
 
 def validate_russian_name(value):
@@ -137,3 +137,22 @@ class UploadFileForm(forms.Form):
     file = forms.FileField(
         label='Файл'
     )
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['text']
+
+        labels = {
+            'text': 'Комментарий',
+        }
+
+        widgets = {
+            'text': forms.Textarea(
+                attrs={
+                    'rows': 4,
+                    'cols': 50,
+                    'placeholder': 'Напишите комментарий...',
+                }
+            ),
+        }

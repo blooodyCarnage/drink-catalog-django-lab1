@@ -19,6 +19,7 @@ from .forms import (
     UserProfileForm,
 )
 from .models import Profile
+from drinks.models import Drink
 
 from django.contrib.auth.forms import (
     AuthenticationForm,
@@ -77,6 +78,13 @@ class ProfileUser(
         )
 
         context['profile'] = profile
+
+        context['reposted_drinks'] = (
+            Drink.objects
+            .filter(reposted_by=self.request.user)
+            .select_related('category', 'author')
+            .prefetch_related('tags')
+        )
 
         return context
 

@@ -9,13 +9,24 @@
 {% block content %}
 
     <h2>{{ drink.name }}</h2>
-        {% if drink.photo %}
-            <img
-                src="{{ drink.photo.url }}"
-                alt="{{ drink.name }}"
-                class="drink-detail-image"
-            >
+
+    <p>
+        <strong>Автор:</strong>
+
+        {% if drink.author %}
+            {{ drink.author.username }}
+        {% else %}
+            не указан
         {% endif %}
+    </p>
+
+    {% if drink.photo %}
+        <img
+            src="{{ drink.photo.url }}"
+            alt="{{ drink.name }}"
+            class="drink-detail-image"
+        >
+    {% endif %}
 
     <p>
         <strong>ID:</strong>
@@ -61,6 +72,13 @@
         {% endfor %}
     </p>
 
+    {% if drink.description %}
+        <p>
+            <strong>Описание:</strong>
+            {{ drink.description }}
+        </p>
+    {% endif %}
+
     {% if drink.meta %}
 
         <p>
@@ -87,31 +105,141 @@
         {{ drink.get_available_display }}
     </p>
 
+
+    {% if user.is_authenticated %}
+
+        <div class="drink-actions">
+
+            <form
+                method="post"
+                action="{% url 'like_drink' drink.slug %}"
+                style="display: inline;"
+            >
+                {% csrf_token %}
+
+                <button type="submit">
+                    {% if user_liked %}
+                        👍 Убрать лайк
+                    {% else %}
+                        👍 Лайк
+                    {% endif %}
+                    ({{ drink.liked_by.count }})
+                </button>
+            </form>
+
+            <form
+                method="post"
+                action="{% url 'dislike_drink' drink.slug %}"
+                style="display: inline;"
+            >
+                {% csrf_token %}
+
+                <button type="submit">
+                    {% if user_disliked %}
+                        👎 Убрать дизлайк
+                    {% else %}
+                        👎 Дизлайк
+                    {% endif %}
+                    ({{ drink.disliked_by.count }})
+                </button>
+            </form>
+
+            <form
+                method="post"
+                action="{% url 'repost_drink' drink.slug %}"
+                style="display: inline;"
+            >
+                {% csrf_token %}
+
+                <button type="submit">
+                    {% if user_reposted %}
+                        ↩ Убрать репост
+                    {% else %}
+                        ↩ Репост
+                    {% endif %}
+                    ({{ drink.reposted_by.count }})
+                </button>
+            </form>
+
+        </div>
+
+    {% endif %}
+
+
     <p>
+        {% if drink.author == user and perms.drinks.change_drink %}
 
-    {% if perms.drinks.change_drink %}
+            <a
+                href="{% url 'edit_drink' drink.slug %}"
+                class="button"
+            >
+                Редактировать
+            </a>
 
-        <a
-            href="{% url 'edit_drink' drink.slug %}"
-            class="button"
+        {% endif %}
+
+        {% if drink.author == user and perms.drinks.delete_drink %}
+
+            <a
+                href="{% url 'delete_drink' drink.slug %}"
+                class="button"
+            >
+                Удалить
+            </a>
+
+        {% endif %}
+    </p>
+
+
+    <hr>
+
+    <h3>Комментарии</h3>
+
+    {% if user.is_authenticated %}
+
+        <form
+            method="post"
+            action="{% url 'add_comment' drink.slug %}"
         >
-            Редактировать
-        </a>
+            {% csrf_token %}
+
+            {{ comment_form.as_p }}
+
+            <button type="submit">
+                Отправить комментарий
+            </button>
+        </form>
+
+    {% else %}
+
+        <p>
+            Чтобы оставить комментарий, необходимо войти в систему.
+        </p>
 
     {% endif %}
 
+    <hr>
 
-    {% if perms.drinks.delete_drink %}
+    {% for comment in comments %}
 
-        <a
-            href="{% url 'delete_drink' drink.slug %}"
-            class="button"
-        >
-            Удалить
-        </a>
+        <div class="comment">
 
-    {% endif %}
+            <p>
+                <strong>{{ comment.author.username }}</strong>
+                —
+                {{ comment.time_create|date:"d.m.Y H:i" }}
+            </p>
 
-</p>
+            <p>
+                {{ comment.text }}
+            </p>
+
+        </div>
+
+    {% empty %}
+
+        <p>Комментариев пока нет.</p>
+
+    {% endfor %}
 
 {% endblock %}

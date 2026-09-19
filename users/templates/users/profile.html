@@ -71,5 +71,69 @@
     </a>
 
 </p>
+<hr>
+
+<h3>Репостнутые напитки</h3>
+
+<p>
+    <strong>Количество репостов:</strong>
+    {{ reposted_drinks|length }}
+</p>
+
+{% for drink in reposted_drinks %}
+
+    <div class="reposted-drink">
+
+        <h4>{{ drink.name }}</h4>
+
+        {% if drink.photo %}
+            <img
+                src="{{ drink.photo.url }}"
+                alt="{{ drink.name }}"
+                class="drink-image"
+            >
+        {% endif %}
+
+        <p>
+            <strong>Категория:</strong>
+
+            {% if drink.category %}
+                {{ drink.category.name }}
+            {% else %}
+                не указана
+            {% endif %}
+        </p>
+
+        <p>
+            <strong>Автор:</strong>
+
+            {% if drink.author %}
+                {{ drink.author.username }}
+            {% else %}
+                не указан
+            {% endif %}
+        </p>
+
+        {% if drink.description %}
+            <p>
+                {{ drink.description|truncatewords:25 }}
+            </p>
+        {% endif %}
+
+        <p>
+            <a href="{{ drink.get_absolute_url }}">
+                Открыть напиток
+            </a>
+        </p>
+
+    </div>
+
+    <hr>
+
+{% empty %}
+
+    <p>Репостнутых напитков пока нет.</p>
+
+{% endfor %}
 
 {% endblock %}

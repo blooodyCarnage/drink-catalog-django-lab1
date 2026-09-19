@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Drink, Category, TagDrink
+from .models import Drink, Category, TagDrink, Comment
 from .forms import (
     AddDrinkPlainForm,
     AddDrinkModelForm,
     UploadFileForm,
+    CommentForm,
 )
 from django.urls import reverse_lazy
 from django.views import View
@@ -28,6 +29,9 @@ from django.contrib.auth.mixins import (
     LoginRequiredMixin,
     PermissionRequiredMixin,
 )
+
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 
 drinks_db = [
     {
@@ -213,22 +217,130 @@ class ShowDrink(DataMixin, DetailView):
             Drink.objects
             .select_related(
                 'category',
-                'meta'
+                'meta',
+                'author',
             )
-            .prefetch_related('tags')
+            .prefetch_related(
+                'tags',
+                'liked_by',
+                'disliked_by',
+                'reposted_by',
+            )
         )
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(
-            **kwargs
-        )
+        context = super().get_context_data(**kwargs)
 
-        return self.get_mixin_context(
+        context = self.get_mixin_context(
             context,
             title=f'Напиток: {self.object.name}',
             selected_category=self.object.category,
             selected_tag=None,
         )
+
+        context['comments'] = (
+            self.object.comments
+            .select_related('author')
+            .all()
+        )
+
+        context['comment_form'] = CommentForm()
+
+        if self.request.user.is_authenticated:
+            context['user_liked'] = (
+                self.object.liked_by
+                .filter(pk=self.request.user.pk)
+                .exists()
+            )
+
+            context['user_disliked'] = (
+                self.object.disliked_by
+                .filter(pk=self.request.user.pk)
+                .exists()
+            )
+
+            context['user_reposted'] = (
+                self.object.reposted_by
+                .filter(pk=self.request.user.pk)
+                .exists()
+            )
+        else:
+            context['user_liked'] = False
+            context['user_disliked'] = False
+            context['user_reposted'] = False
+
+        return context
+
+@login_required
+@require_POST
+def add_comment(request, drink_slug):
+    drink = get_object_or_404(
+        Drink,
+        slug=drink_slug
+    )
+
+    form = CommentForm(request.POST)
+
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.drink = drink
+        comment.author = request.user
+        comment.save()
+
+    return redirect(drink.get_absolute_url())
+
+@login_required
+@require_POST
+def like_drink(request, drink_slug):
+    drink = get_object_or_404(
+        Drink,
+        slug=drink_slug
+    )
+
+    if drink.liked_by.filter(
+        pk=request.user.pk
+    ).exists():
+        drink.liked_by.remove(request.user)
+    else:
+        drink.liked_by.add(request.user)
+        drink.disliked_by.remove(request.user)
+
+    return redirect(drink.get_absolute_url())
+
+@login_required
+@require_POST
+def dislike_drink(request, drink_slug):
+    drink = get_object_or_404(
+        Drink,
+        slug=drink_slug
+    )
+
+    if drink.disliked_by.filter(
+        pk=request.user.pk
+    ).exists():
+        drink.disliked_by.remove(request.user)
+    else:
+        drink.disliked_by.add(request.user)
+        drink.liked_by.remove(request.user)
+
+    return redirect(drink.get_absolute_url())
+
+@login_required
+@require_POST
+def repost_drink(request, drink_slug):
+    drink = get_object_or_404(
+        Drink,
+        slug=drink_slug
+    )
+
+    if drink.reposted_by.filter(
+        pk=request.user.pk
+    ).exists():
+        drink.reposted_by.remove(request.user)
+    else:
+        drink.reposted_by.add(request.user)
+
+    return redirect(drink.get_absolute_url())
 
 class AddDrink(
     PermissionRequiredMixin,
@@ -243,6 +355,8 @@ class AddDrink(
     def form_valid(self, form):
         data = form.cleaned_data.copy()
         tags = data.pop('tags')
+
+        data['author'] = self.request.user
 
         drink = Drink.objects.create(**data)
         drink.tags.set(tags)
@@ -269,6 +383,10 @@ class CreateDrink(
     form_class = AddDrinkModelForm
     template_name = 'drinks/add_model.html'
     success_url = reverse_lazy('drinks')
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -321,6 +439,11 @@ class UpdateDrink(
             selected_tag=None,
         )
 
+    def get_queryset(self):
+        return Drink.objects.filter(
+            author=self.request.user
+        )
+
 class DeleteDrink(
     PermissionRequiredMixin,
     DataMixin,
@@ -342,6 +465,11 @@ class DeleteDrink(
             title=f'Удаление напитка: {self.object.name}',
             selected_category=self.object.category,
             selected_tag=None,
+        )
+
+    def get_queryset(self):
+        return Drink.objects.filter(
+            author=self.request.user
         )
 
 class UploadFileView(

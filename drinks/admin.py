@@ -1,6 +1,6 @@
 from django.contrib import admin, messages
 from django.utils.html import format_html
-from .models import Drink, Category, TagDrink, DrinkMeta
+from .models import Drink, Category, TagDrink, DrinkMeta, Comment
 
 
 class HasTagsFilter(admin.SimpleListFilter):
@@ -28,12 +28,16 @@ class DrinkAdmin(admin.ModelAdmin):
     list_display = (
         'name',
         'post_photo',
+        'author',
         'type',
         'brand',
         'available',
         'category',
         'short_description',
         'tags_count',
+        'likes_count',
+        'dislikes_count',
+        'reposts_count',
         'time_create',
     )
 
@@ -76,6 +80,10 @@ class DrinkAdmin(admin.ModelAdmin):
         'category',
         'tags',
         'meta',
+        'author',
+        'liked_by',
+        'disliked_by',
+        'reposted_by',
         'time_create',
         'time_update',
     )
@@ -90,7 +98,12 @@ class DrinkAdmin(admin.ModelAdmin):
         'slug': ('name',),
     }
 
-    filter_horizontal = ('tags',)
+    filter_horizontal = (
+        'tags',
+        'liked_by',
+        'disliked_by',
+        'reposted_by',
+    )
 
     @admin.display(description='Изображение')
     def post_photo(self, drink):
@@ -117,6 +130,18 @@ class DrinkAdmin(admin.ModelAdmin):
     @admin.display(description='Количество тегов')
     def tags_count(self, drink):
         return drink.tags.count()
+
+    @admin.display(description='Лайки')
+    def likes_count(self, drink):
+        return drink.liked_by.count()
+
+    @admin.display(description='Дизлайки')
+    def dislikes_count(self, drink):
+        return drink.disliked_by.count()
+
+    @admin.display(description='Репосты')
+    def reposts_count(self, drink):
+        return drink.reposted_by.count()
 
     @admin.action(
         description='Сделать выбранные напитки доступными'
@@ -165,3 +190,39 @@ class DrinkMetaAdmin(admin.ModelAdmin):
         'package',
         'country',
     )
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'drink',
+        'author',
+        'short_text',
+        'time_create',
+    )
+
+    list_display_links = (
+        'id',
+        'short_text',
+    )
+
+    search_fields = (
+        'text',
+        'drink__name',
+        'author__username',
+    )
+
+    list_filter = (
+        'time_create',
+    )
+
+    ordering = (
+        '-time_create',
+    )
+
+    @admin.display(description='Комментарий')
+    def short_text(self, comment):
+        if len(comment.text) > 60:
+            return f'{comment.text[:60]}...'
+
+        return comment.text
