@@ -1,0 +1,303 @@
+#root {
+  min-height: 100vh;
+}
+
+.app {
+  min-height: 100vh;
+}
+
+.header {
+  background: linear-gradient(135deg, #172b4d, #254f87);
+  color: white;
+  padding: 34px 24px;
+  box-shadow: 0 3px 12px rgba(18, 43, 77, 0.2);
+}
+
+.header__content {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+}
+
+.header__subtitle {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  opacity: 0.8;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 36px;
+}
+
+.header__description {
+  margin: 8px 0 0;
+  opacity: 0.85;
+}
+
+.layout {
+  width: min(1180px, calc(100% - 40px));
+  margin: 28px auto;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.sidebar {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 5px 20px rgba(24, 43, 70, 0.08);
+}
+
+.sidebar__block + .sidebar__block {
+  margin-top: 28px;
+}
+
+.sidebar h2 {
+  margin: 0 0 12px;
+  font-size: 17px;
+  color: #172b4d;
+}
+
+.sidebar__link {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 4px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #4b5d73;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebar__link:hover,
+.sidebar__link_active {
+  background: #eaf2ff;
+  color: #205493;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.tag {
+  border: 0;
+  border-radius: 20px;
+  padding: 6px 9px;
+  background: #eef3fa;
+  color: #315377;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.content {
+  min-width: 0;
+}
+
+.content__header {
+  background: white;
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 18px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: center;
+  box-shadow: 0 5px 20px rgba(24, 43, 70, 0.08);
+}
+
+.content__header h2 {
+  margin: 0;
+  color: #172b4d;
+}
+
+.content__header p {
+  margin: 5px 0 0;
+  color: #708096;
+  font-size: 14px;
+}
+
+.sort-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 190px;
+}
+
+.sort-preview label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #586b81;
+}
+
+.sort-preview select {
+  border: 1px solid #ccd6e2;
+  border-radius: 7px;
+  padding: 8px 10px;
+  background: white;
+}
+
+.drink-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.drink-card {
+  overflow: hidden;
+  background: white;
+  border-radius: 13px;
+  box-shadow: 0 5px 20px rgba(24, 43, 70, 0.09);
+}
+
+.drink-card__image {
+  height: 145px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #234c7c, #5d86b5);
+}
+
+.drink-card__image span {
+  color: white;
+  font-size: 58px;
+  font-weight: 800;
+  opacity: 0.9;
+}
+
+.drink-card__body {
+  padding: 18px;
+}
+
+.drink-card__title-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.drink-card h3 {
+  margin: 0 0 12px;
+  color: #172b4d;
+  font-size: 20px;
+}
+
+.drink-card p {
+  margin: 7px 0;
+  color: #4f6074;
+  font-size: 14px;
+}
+
+.drink-card__description {
+  min-height: 42px;
+}
+
+.status {
+  flex-shrink: 0;
+  padding: 5px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.status_available {
+  background: #e5f7eb;
+  color: #247642;
+}
+
+.status_unavailable {
+  background: #fbe8e8;
+  color: #a63a3a;
+}
+
+.drink-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 13px 0;
+}
+
+.drink-tag {
+  padding: 5px 8px;
+  border-radius: 15px;
+  background: #edf3fb;
+  color: #315b87;
+  font-size: 11px;
+}
+
+.drink-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.button {
+  border: 0;
+  border-radius: 7px;
+  padding: 8px 11px;
+  background: #e8edf3;
+  color: #35475b;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.button_primary {
+  background: #285d9b;
+  color: white;
+}
+
+.button_danger {
+  background: #d94a4a;
+  color: white;
+}
+
+@media (max-width: 850px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .drink-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .content__header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+.tag_active {
+  background: #285d9b;
+  color: white;
+}
+
+.reset-button {
+  width: 100%;
+  margin-top: 18px;
+  padding: 9px 10px;
+  border: 1px solid #ccd6e2;
+  border-radius: 7px;
+  background: white;
+  color: #40566f;
+  cursor: pointer;
+}
+
+.reset-button:hover {
+  background: #f0f4f9;
+}
+
+.empty-message {
+  padding: 35px;
+  background: white;
+  border-radius: 12px;
+  color: #718095;
+  text-align: center;
+  box-shadow: 0 5px 20px rgba(24, 43, 70, 0.08);
+}
