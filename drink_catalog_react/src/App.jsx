@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 
 const initialDrinks = [
@@ -10,6 +10,7 @@ const initialDrinks = [
     brand: 'Classic Cola',
     tags: ['сладкий', 'газированный', 'холодный'],
     description: 'Классический газированный напиток с насыщенным вкусом.',
+    image: '',
     available: true,
   },
   {
@@ -20,6 +21,7 @@ const initialDrinks = [
     brand: 'Fresh Orange',
     tags: ['апельсин', 'фруктовый', 'сок'],
     description: 'Освежающий апельсиновый сок с ярким фруктовым вкусом.',
+    image: '',
     available: true,
   },
   {
@@ -30,6 +32,7 @@ const initialDrinks = [
     brand: 'Aqua',
     tags: ['вода', 'минеральный'],
     description: 'Минеральная вода для ежедневного употребления.',
+    image: '',
     available: true,
   },
   {
@@ -40,6 +43,7 @@ const initialDrinks = [
     brand: 'Ice Tea',
     tags: ['чай', 'холодный', 'лимон'],
     description: 'Холодный чай с лёгким лимонным вкусом.',
+    image: '',
     available: false,
   },
   {
@@ -50,6 +54,7 @@ const initialDrinks = [
     brand: 'Apple Fresh',
     tags: ['яблоко', 'фруктовый', 'сок'],
     description: 'Натуральный яблочный сок с мягким фруктовым вкусом.',
+    image: '',
     available: true,
   },
   {
@@ -60,6 +65,7 @@ const initialDrinks = [
     brand: 'Fresh Lemon',
     tags: ['лимон', 'газированный', 'сладкий'],
     description: 'Освежающий лимонад с выраженным цитрусовым вкусом.',
+    image: '',
     available: true,
   },
 ]
@@ -88,7 +94,20 @@ const emptyFormData = {
   brand: '',
   tags: '',
   description: '',
+  image: '',
   available: true,
+}
+
+function getSavedDrinks() {
+  try {
+    const savedDrinks = localStorage.getItem('drink-catalog-drinks')
+
+    return savedDrinks
+      ? JSON.parse(savedDrinks)
+      : initialDrinks
+  } catch {
+    return initialDrinks
+  }
 }
 
 function Header() {
@@ -201,15 +220,26 @@ function SortPanel({ sortBy, onSortChange }) {
 function DrinkForm({
   formData,
   errors,
+  isEditing,
   onInputChange,
   onSubmit,
+  onCancelEdit,
 }) {
   return (
     <section className="drink-form">
       <div className="drink-form__header">
         <div>
-          <h2>Добавление напитка</h2>
-          <p>Заполните данные нового напитка</p>
+          <h2>
+            {isEditing
+              ? 'Редактирование напитка'
+              : 'Добавление напитка'}
+          </h2>
+
+          <p>
+            {isEditing
+              ? 'Измените необходимые данные'
+              : 'Заполните данные нового напитка'}
+          </p>
         </div>
       </div>
 
@@ -217,6 +247,7 @@ function DrinkForm({
         <div className="form-grid">
           <div className="form-group">
             <label htmlFor="name">Название</label>
+
             <input
               id="name"
               name="name"
@@ -236,12 +267,17 @@ function DrinkForm({
 
           <div className="form-group">
             <label htmlFor="category">Категория</label>
+
             <select
               id="category"
               name="category"
               value={formData.category}
               onChange={onInputChange}
-              className={errors.category ? 'field field_error' : 'field'}
+              className={
+                errors.category
+                  ? 'field field_error'
+                  : 'field'
+              }
             >
               <option value="">Выберите категорию</option>
 
@@ -261,6 +297,7 @@ function DrinkForm({
 
           <div className="form-group">
             <label htmlFor="type">Тип напитка</label>
+
             <input
               id="type"
               name="type"
@@ -280,6 +317,7 @@ function DrinkForm({
 
           <div className="form-group">
             <label htmlFor="brand">Бренд</label>
+
             <input
               id="brand"
               name="brand"
@@ -312,6 +350,28 @@ function DrinkForm({
             className="field"
             placeholder="имбирь, лимон, газированный"
           />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="image">Изображение</label>
+
+          <input
+            id="image"
+            name="image"
+            type="file"
+            accept="image/*"
+            onChange={onInputChange}
+            className="field"
+          />
+
+          {formData.image && (
+            <div className="image-preview">
+              <img
+                src={formData.image}
+                alt="Предпросмотр напитка"
+              />
+            </div>
+          )}
         </div>
 
         <div className="form-group">
@@ -348,22 +408,48 @@ function DrinkForm({
           <span>Напиток в наличии</span>
         </label>
 
-        <button
-          className="button button_primary form-submit"
-          type="submit"
-        >
-          Добавить напиток
-        </button>
+        <div className="form-actions">
+          <button
+            className="button button_primary form-submit"
+            type="submit"
+          >
+            {isEditing
+              ? 'Сохранить изменения'
+              : 'Добавить напиток'}
+          </button>
+
+          {isEditing && (
+            <button
+              className="button"
+              type="button"
+              onClick={onCancelEdit}
+            >
+              Отменить редактирование
+            </button>
+          )}
+        </div>
       </form>
     </section>
   )
 }
 
-function DrinkCard({ drink }) {
+function DrinkCard({
+  drink,
+  onOpen,
+  onEdit,
+  onDelete,
+}) {
   return (
     <article className="drink-card">
       <div className="drink-card__image">
-        <span>{drink.name[0]}</span>
+        {drink.image ? (
+          <img
+            src={drink.image}
+            alt={drink.name}
+          />
+        ) : (
+          <span>{drink.name[0]}</span>
+        )}
       </div>
 
       <div className="drink-card__body">
@@ -377,7 +463,9 @@ function DrinkCard({ drink }) {
                 : 'status status_unavailable'
             }
           >
-            {drink.available ? 'В наличии' : 'Нет в наличии'}
+            {drink.available
+              ? 'В наличии'
+              : 'Нет в наличии'}
           </span>
         </div>
 
@@ -409,15 +497,27 @@ function DrinkCard({ drink }) {
         </div>
 
         <div className="drink-card__actions">
-          <button className="button button_primary" type="button">
+          <button
+            className="button button_primary"
+            type="button"
+            onClick={() => onOpen(drink)}
+          >
             Открыть
           </button>
 
-          <button className="button" type="button">
+          <button
+            className="button"
+            type="button"
+            onClick={() => onEdit(drink)}
+          >
             Редактировать
           </button>
 
-          <button className="button button_danger" type="button">
+          <button
+            className="button button_danger"
+            type="button"
+            onClick={() => onDelete(drink)}
+          >
             Удалить
           </button>
         </div>
@@ -426,7 +526,12 @@ function DrinkCard({ drink }) {
   )
 }
 
-function DrinkList({ drinks }) {
+function DrinkList({
+  drinks,
+  onOpen,
+  onEdit,
+  onDelete,
+}) {
   if (drinks.length === 0) {
     return (
       <div className="empty-message">
@@ -441,14 +546,118 @@ function DrinkList({ drinks }) {
         <DrinkCard
           drink={drink}
           key={drink.id}
+          onOpen={onOpen}
+          onEdit={onEdit}
+          onDelete={onDelete}
         />
       ))}
     </div>
   )
 }
 
+function DrinkDetails({
+  drink,
+  onClose,
+  onEdit,
+  onDelete,
+}) {
+  return (
+    <div
+      className="modal-backdrop"
+      onClick={onClose}
+    >
+      <div
+        className="modal"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <button
+          className="modal__close"
+          type="button"
+          onClick={onClose}
+        >
+          ×
+        </button>
+
+        <div className="modal__image">
+          {drink.image ? (
+            <img
+              src={drink.image}
+              alt={drink.name}
+            />
+          ) : (
+            <span>{drink.name[0]}</span>
+          )}
+        </div>
+
+        <div className="modal__body">
+          <div className="modal__title-row">
+            <h2>{drink.name}</h2>
+
+            <span
+              className={
+                drink.available
+                  ? 'status status_available'
+                  : 'status status_unavailable'
+              }
+            >
+              {drink.available
+                ? 'В наличии'
+                : 'Нет в наличии'}
+            </span>
+          </div>
+
+          <p>
+            <strong>Категория:</strong> {drink.category}
+          </p>
+
+          <p>
+            <strong>Тип:</strong> {drink.type}
+          </p>
+
+          <p>
+            <strong>Бренд:</strong> {drink.brand}
+          </p>
+
+          <p>
+            <strong>Описание:</strong> {drink.description}
+          </p>
+
+          <div className="drink-card__tags">
+            {drink.tags.map((tag) => (
+              <span
+                className="drink-tag"
+                key={tag}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          <div className="drink-card__actions">
+            <button
+              className="button"
+              type="button"
+              onClick={() => onEdit(drink)}
+            >
+              Редактировать
+            </button>
+
+            <button
+              className="button button_danger"
+              type="button"
+              onClick={() => onDelete(drink)}
+            >
+              Удалить
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function App() {
-  const [drinks, setDrinks] = useState(initialDrinks)
+  const [drinks, setDrinks] = useState(getSavedDrinks)
 
   const [sortBy, setSortBy] = useState('newest')
   const [selectedCategory, setSelectedCategory] = useState('all')
@@ -456,6 +665,16 @@ function App() {
 
   const [formData, setFormData] = useState(emptyFormData)
   const [errors, setErrors] = useState({})
+
+  const [selectedDrink, setSelectedDrink] = useState(null)
+  const [editingDrinkId, setEditingDrinkId] = useState(null)
+
+  useEffect(() => {
+    localStorage.setItem(
+      'drink-catalog-drinks',
+      JSON.stringify(drinks),
+    )
+  }, [drinks])
 
   const visibleDrinks = useMemo(() => {
     let result = [...drinks]
@@ -495,7 +714,12 @@ function App() {
     }
 
     return result
-  }, [drinks, sortBy, selectedCategory, selectedTag])
+  }, [
+    drinks,
+    sortBy,
+    selectedCategory,
+    selectedTag,
+  ])
 
   function handleCategorySelect(category) {
     setSelectedCategory(category)
@@ -513,7 +737,33 @@ function App() {
   }
 
   function handleInputChange(event) {
-    const { name, value, type, checked } = event.target
+    const {
+      name,
+      value,
+      type,
+      checked,
+      files,
+    } = event.target
+
+    if (type === 'file') {
+      const file = files[0]
+
+      if (!file) {
+        return
+      }
+
+      const reader = new FileReader()
+
+      reader.onload = () => {
+        setFormData((currentData) => ({
+          ...currentData,
+          [name]: reader.result,
+        }))
+      }
+
+      reader.readAsDataURL(file)
+      return
+    }
 
     setFormData((currentData) => ({
       ...currentData,
@@ -565,8 +815,7 @@ function App() {
       return
     }
 
-    const newDrink = {
-      id: Date.now(),
+    const drinkData = {
       name: formData.name.trim(),
       category: formData.category,
       type: formData.type.trim(),
@@ -576,19 +825,95 @@ function App() {
         .map((tag) => tag.trim())
         .filter((tag) => tag.length > 0),
       description: formData.description.trim(),
+      image: formData.image,
       available: formData.available,
     }
 
-    setDrinks((currentDrinks) => [
-      newDrink,
-      ...currentDrinks,
-    ])
+    if (editingDrinkId !== null) {
+      setDrinks((currentDrinks) =>
+        currentDrinks.map((drink) =>
+          drink.id === editingDrinkId
+            ? { ...drink, ...drinkData }
+            : drink,
+        ),
+      )
+
+      setEditingDrinkId(null)
+    } else {
+      const newDrink = {
+        id: Date.now(),
+        ...drinkData,
+      }
+
+      setDrinks((currentDrinks) => [
+        newDrink,
+        ...currentDrinks,
+      ])
+
+      setSortBy('newest')
+    }
 
     setFormData(emptyFormData)
     setErrors({})
-    setSortBy('newest')
     setSelectedCategory('all')
     setSelectedTag('all')
+  }
+
+  function handleOpenDrink(drink) {
+    setSelectedDrink(drink)
+  }
+
+  function handleEditDrink(drink) {
+    setEditingDrinkId(drink.id)
+
+    setFormData({
+      name: drink.name,
+      category: drink.category,
+      type: drink.type,
+      brand: drink.brand,
+      tags: drink.tags.join(', '),
+      description: drink.description,
+      image: drink.image || '',
+      available: drink.available,
+    })
+
+    setErrors({})
+    setSelectedDrink(null)
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    })
+  }
+
+  function handleCancelEdit() {
+    setEditingDrinkId(null)
+    setFormData(emptyFormData)
+    setErrors({})
+  }
+
+  function handleDeleteDrink(drink) {
+    const isConfirmed = window.confirm(
+      `Удалить напиток «${drink.name}»?`,
+    )
+
+    if (!isConfirmed) {
+      return
+    }
+
+    setDrinks((currentDrinks) =>
+      currentDrinks.filter(
+        (item) => item.id !== drink.id,
+      ),
+    )
+
+    if (selectedDrink?.id === drink.id) {
+      setSelectedDrink(null)
+    }
+
+    if (editingDrinkId === drink.id) {
+      handleCancelEdit()
+    }
   }
 
   return (
@@ -608,8 +933,10 @@ function App() {
           <DrinkForm
             formData={formData}
             errors={errors}
+            isEditing={editingDrinkId !== null}
             onInputChange={handleInputChange}
             onSubmit={handleSubmit}
+            onCancelEdit={handleCancelEdit}
           />
 
           <div className="content__header">
@@ -627,9 +954,23 @@ function App() {
             />
           </div>
 
-          <DrinkList drinks={visibleDrinks} />
+          <DrinkList
+            drinks={visibleDrinks}
+            onOpen={handleOpenDrink}
+            onEdit={handleEditDrink}
+            onDelete={handleDeleteDrink}
+          />
         </section>
       </main>
+
+      {selectedDrink && (
+        <DrinkDetails
+          drink={selectedDrink}
+          onClose={() => setSelectedDrink(null)}
+          onEdit={handleEditDrink}
+          onDelete={handleDeleteDrink}
+        />
+      )}
     </div>
   )
 }
