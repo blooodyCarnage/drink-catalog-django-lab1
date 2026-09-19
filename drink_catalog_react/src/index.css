@@ -27,3 +27,107 @@ select,
 textarea {
   font: inherit;
 }
+.drink-form {
+  margin-bottom: 18px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(24, 43, 70, 0.08);
+}
+
+.drink-form__header {
+  margin-bottom: 18px;
+}
+
+.drink-form__header h2 {
+  margin: 0;
+  color: #172b4d;
+}
+
+.drink-form__header p {
+  margin: 5px 0 0;
+  color: #708096;
+  font-size: 14px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #42566d;
+}
+
+.field {
+  width: 100%;
+  border: 1px solid #ccd6e2;
+  border-radius: 7px;
+  padding: 10px 11px;
+  background: white;
+  color: #26384d;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.field:focus {
+  border-color: #285d9b;
+  box-shadow: 0 0 0 3px rgba(40, 93, 155, 0.12);
+}
+
+.field_error {
+  border-color: #d94a4a;
+  background: #fff8f8;
+}
+
+.field_error:focus {
+  border-color: #d94a4a;
+  box-shadow: 0 0 0 3px rgba(217, 74, 74, 0.12);
+}
+
+.error-message {
+  color: #c43c3c;
+  font-size: 12px;
+}
+
+.form-textarea {
+  min-height: 95px;
+  resize: vertical;
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  color: #42566d;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.checkbox-field input {
+  width: 17px;
+  height: 17px;
+}
+
+.form-submit {
+  padding: 10px 16px;
+}
+
+@media (max-width: 700px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

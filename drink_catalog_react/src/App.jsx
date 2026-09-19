@@ -81,6 +81,16 @@ const tags = [
   'вода',
 ]
 
+const emptyFormData = {
+  name: '',
+  category: '',
+  type: '',
+  brand: '',
+  tags: '',
+  description: '',
+  available: true,
+}
+
 function Header() {
   return (
     <header className="header">
@@ -188,6 +198,167 @@ function SortPanel({ sortBy, onSortChange }) {
   )
 }
 
+function DrinkForm({
+  formData,
+  errors,
+  onInputChange,
+  onSubmit,
+}) {
+  return (
+    <section className="drink-form">
+      <div className="drink-form__header">
+        <div>
+          <h2>Добавление напитка</h2>
+          <p>Заполните данные нового напитка</p>
+        </div>
+      </div>
+
+      <form onSubmit={onSubmit} noValidate>
+        <div className="form-grid">
+          <div className="form-group">
+            <label htmlFor="name">Название</label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              value={formData.name}
+              onChange={onInputChange}
+              className={errors.name ? 'field field_error' : 'field'}
+              placeholder="Например, Имбирный лимонад"
+            />
+
+            {errors.name && (
+              <span className="error-message">
+                {errors.name}
+              </span>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="category">Категория</label>
+            <select
+              id="category"
+              name="category"
+              value={formData.category}
+              onChange={onInputChange}
+              className={errors.category ? 'field field_error' : 'field'}
+            >
+              <option value="">Выберите категорию</option>
+
+              {categories.map((category) => (
+                <option value={category} key={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+
+            {errors.category && (
+              <span className="error-message">
+                {errors.category}
+              </span>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="type">Тип напитка</label>
+            <input
+              id="type"
+              name="type"
+              type="text"
+              value={formData.type}
+              onChange={onInputChange}
+              className={errors.type ? 'field field_error' : 'field'}
+              placeholder="Например, Лимонад"
+            />
+
+            {errors.type && (
+              <span className="error-message">
+                {errors.type}
+              </span>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="brand">Бренд</label>
+            <input
+              id="brand"
+              name="brand"
+              type="text"
+              value={formData.brand}
+              onChange={onInputChange}
+              className={errors.brand ? 'field field_error' : 'field'}
+              placeholder="Например, Ginger Fresh"
+            />
+
+            {errors.brand && (
+              <span className="error-message">
+                {errors.brand}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="tags">
+            Теги через запятую
+          </label>
+
+          <input
+            id="tags"
+            name="tags"
+            type="text"
+            value={formData.tags}
+            onChange={onInputChange}
+            className="field"
+            placeholder="имбирь, лимон, газированный"
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="description">Описание</label>
+
+          <textarea
+            id="description"
+            name="description"
+            value={formData.description}
+            onChange={onInputChange}
+            className={
+              errors.description
+                ? 'field field_error form-textarea'
+                : 'field form-textarea'
+            }
+            placeholder="Описание напитка"
+          />
+
+          {errors.description && (
+            <span className="error-message">
+              {errors.description}
+            </span>
+          )}
+        </div>
+
+        <label className="checkbox-field">
+          <input
+            name="available"
+            type="checkbox"
+            checked={formData.available}
+            onChange={onInputChange}
+          />
+
+          <span>Напиток в наличии</span>
+        </label>
+
+        <button
+          className="button button_primary form-submit"
+          type="submit"
+        >
+          Добавить напиток
+        </button>
+      </form>
+    </section>
+  )
+}
+
 function DrinkCard({ drink }) {
   return (
     <article className="drink-card">
@@ -238,24 +409,15 @@ function DrinkCard({ drink }) {
         </div>
 
         <div className="drink-card__actions">
-          <button
-            className="button button_primary"
-            type="button"
-          >
+          <button className="button button_primary" type="button">
             Открыть
           </button>
 
-          <button
-            className="button"
-            type="button"
-          >
+          <button className="button" type="button">
             Редактировать
           </button>
 
-          <button
-            className="button button_danger"
-            type="button"
-          >
+          <button className="button button_danger" type="button">
             Удалить
           </button>
         </div>
@@ -286,12 +448,17 @@ function DrinkList({ drinks }) {
 }
 
 function App() {
+  const [drinks, setDrinks] = useState(initialDrinks)
+
   const [sortBy, setSortBy] = useState('newest')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [selectedTag, setSelectedTag] = useState('all')
 
+  const [formData, setFormData] = useState(emptyFormData)
+  const [errors, setErrors] = useState({})
+
   const visibleDrinks = useMemo(() => {
-    let result = [...initialDrinks]
+    let result = [...drinks]
 
     if (selectedCategory !== 'all') {
       result = result.filter(
@@ -328,7 +495,7 @@ function App() {
     }
 
     return result
-  }, [sortBy, selectedCategory, selectedTag])
+  }, [drinks, sortBy, selectedCategory, selectedTag])
 
   function handleCategorySelect(category) {
     setSelectedCategory(category)
@@ -341,6 +508,85 @@ function App() {
   }
 
   function handleResetFilters() {
+    setSelectedCategory('all')
+    setSelectedTag('all')
+  }
+
+  function handleInputChange(event) {
+    const { name, value, type, checked } = event.target
+
+    setFormData((currentData) => ({
+      ...currentData,
+      [name]: type === 'checkbox' ? checked : value,
+    }))
+
+    setErrors((currentErrors) => ({
+      ...currentErrors,
+      [name]: '',
+    }))
+  }
+
+  function validateForm(data) {
+    const formErrors = {}
+
+    if (data.name.trim().length < 3) {
+      formErrors.name =
+        'Название должно содержать минимум 3 символа'
+    }
+
+    if (!data.category) {
+      formErrors.category = 'Выберите категорию'
+    }
+
+    if (data.type.trim().length < 3) {
+      formErrors.type =
+        'Тип должен содержать минимум 3 символа'
+    }
+
+    if (data.brand.trim().length < 2) {
+      formErrors.brand = 'Укажите бренд'
+    }
+
+    if (data.description.trim().length < 15) {
+      formErrors.description =
+        'Описание должно содержать минимум 15 символов'
+    }
+
+    return formErrors
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault()
+
+    const formErrors = validateForm(formData)
+
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors)
+      return
+    }
+
+    const newDrink = {
+      id: Date.now(),
+      name: formData.name.trim(),
+      category: formData.category,
+      type: formData.type.trim(),
+      brand: formData.brand.trim(),
+      tags: formData.tags
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter((tag) => tag.length > 0),
+      description: formData.description.trim(),
+      available: formData.available,
+    }
+
+    setDrinks((currentDrinks) => [
+      newDrink,
+      ...currentDrinks,
+    ])
+
+    setFormData(emptyFormData)
+    setErrors({})
+    setSortBy('newest')
     setSelectedCategory('all')
     setSelectedTag('all')
   }
@@ -359,6 +605,13 @@ function App() {
         />
 
         <section className="content">
+          <DrinkForm
+            formData={formData}
+            errors={errors}
+            onInputChange={handleInputChange}
+            onSubmit={handleSubmit}
+          />
+
           <div className="content__header">
             <div>
               <h2>Каталог напитков</h2>
